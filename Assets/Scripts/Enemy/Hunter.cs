@@ -90,7 +90,12 @@ namespace Enemy
             Vector3 desired = wp.position - transform.position;
             desired.y = 0;
 
-            if (desired.magnitude <= 0.2f) _currentWaypoint++;
+            if (desired.magnitude <= 0.2f)
+            {
+                _currentWaypoint++;
+
+                if (_currentWaypoint >= waypoints.Length) _currentWaypoint = 0;
+            }
 
             if (stamina.Energy <= 0) _myFsm.SendInput(StatesHunter.Idle);
             else stamina.RestEnergy();

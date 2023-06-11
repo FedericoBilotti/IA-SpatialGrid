@@ -3,23 +3,23 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class SpawnerFood : MonoBehaviour
+public class Spawner : MonoBehaviour
 {
-    [SerializeField] private GameObject[] foods;
+    [SerializeField] private GameObject[] whatToSpawn;
     [SerializeField] private float radiusSpawn;
 
-    private void Start()
+    private void Awake()
     {
         SpawnerFoodRange();
     }
 
     private void SpawnerFoodRange()
     {
-        foreach (GameObject item in foods)
+        foreach (GameObject item in whatToSpawn)
         {
             Vector3 randomCircle = Random.insideUnitCircle * radiusSpawn;
             Vector3 range = new(randomCircle.x, 0, randomCircle.y);
-            Instantiate(item, transform.position + range, Quaternion.identity);
+            Instantiate(item, transform.position + range, Quaternion.identity, GameObject.FindGameObjectWithTag("Grid").transform);
         }
     }
 

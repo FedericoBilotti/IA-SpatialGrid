@@ -38,7 +38,8 @@ public class SpatialGrid : MonoBehaviour
     #endregion
 
     #region FUNCIONES
-    private void Awake()
+    
+    private void Start()
     {
         lastPositions = new Dictionary<GridEntity, Tuple<int, int>>();
         buckets = new HashSet<GridEntity>[width, height];
@@ -142,6 +143,7 @@ public class SpatialGrid : MonoBehaviour
     }
 
     #region GENERATORS
+    
     private static IEnumerable<Transform> RecursiveWalker(Transform parent)
     {
         foreach (Transform child in parent)
