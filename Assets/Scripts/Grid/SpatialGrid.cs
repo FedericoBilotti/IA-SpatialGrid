@@ -31,10 +31,10 @@ public class SpatialGrid : MonoBehaviour
      const tengo que ponerle el valor apenas la declaro, readonly puedo hacerlo en el constructor.
      Const solo sirve para tipos de dato primitivos.
      */
-    readonly public Tuple<int, int> Outside = Tuple.Create(-1, -1);
+    public readonly Tuple<int, int> Outside = Tuple.Create(-1, -1);
 
     //Una colección vacía a devolver en las queries si no hay nada que devolver
-    readonly public GridEntity[] Empty = new GridEntity[0];
+    public readonly GridEntity[] Empty = new GridEntity[0];
     #endregion
 
     #region FUNCIONES
@@ -99,7 +99,7 @@ public class SpatialGrid : MonoBehaviour
         if (!IsInsideGrid(fromCoord) && !IsInsideGrid(toCoord))
             return Empty;
         
-        // Creamos tuplas de cada celda
+        //Creamos tuplas de cada celda
         var cols = Generate(fromCoord.Item1, x => x + 1)
             .TakeWhile(x => x < width && x <= toCoord.Item1);
 
