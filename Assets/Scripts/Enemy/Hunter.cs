@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using UnityEngine;
 using UnityEngine.Serialization;
+using Random = System.Random;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Enemy
@@ -42,6 +43,7 @@ namespace Enemy
             _spatialGrid = GetComponentInParent<SpatialGrid>();
             _myGridEntity = GetComponent<GridEntity>();
 
+            //IA2-P3
             #region CreateStates
 
             var idle = new State<StatesHunter>("Idle");
@@ -123,11 +125,7 @@ namespace Enemy
 
             var boids = GetBoids(radiusVision).Where(x => x != _myGridEntity && (x.transform.position - transform.position).magnitude <= radiusVision);
 
-            if (boids.Any())
-            {
-                Debug.Log("Cambio a ataque");
-                _myFsm.SendInput(StatesHunter.Attack);
-            }
+            if (boids.Any()) _myFsm.SendInput(StatesHunter.Attack);
 
             return Steering(desired);
         }
@@ -139,10 +137,9 @@ namespace Enemy
         Vector3 Pursuit()
         {
             Vector3 desired = Vector3.zero;
-            //Acá se podría usar Aggregate si no encuentro otro lugar
             //IA2-P1
             var closerEnemy = GetBoids(radiusVision)
-                .Where(x => x != _myGridEntity)
+                .Where(x => x != _myGridEntity && x.gameObject.layer == 6)
                 .Select(x => Tuple.Create(x, Vector3.Distance(transform.position, x.transform.position)))
                 .OrderBy(x => x.Item2)
                 .FirstOrDefault();
@@ -157,7 +154,7 @@ namespace Enemy
                     Debug.Log("Lo mato");
                     GridEntity boidsDestroy = closerEnemy.Item1;
                     boidsDestroy.OnMove -= _spatialGrid.UpdateEntity;
-                    boidsDestroy.gameObject.SetActive(false);
+                    Destroy(boidsDestroy.gameObject);
                 }
             }
 
@@ -192,7 +189,8 @@ namespace Enemy
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, transform.position + transform.forward);
+            var position = transform.position;
+            Gizmos.DrawLine(position, position + transform.forward);
         }
 
         private void OnDrawGizmosSelected()

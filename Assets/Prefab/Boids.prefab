@@ -130,18 +130,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxSpeed: 4
-  _maxForce: 0.3
+  _maxForce: 0.187
   _radiusSeparation: 1.5
   _radiusAlignment: 3
   _radiusCohesion: 4
   _radiusFood: 1
-  _radiusHunter: 2.5
+  _radiusHunter: 5
   _weightSeparation: 2
   _weightAligment: 0.9
   _weightCohesion: 0.7
-  _maxCount: 0
+  _maxCount: 2
   myGridEntity: {fileID: 1974830993066860416}
   hunter: {fileID: 6029929746053027620, guid: bb9a39e5fac954e4cb798f5e24ca3f73, type: 3}
+  foodPrefab: {fileID: -3463943811132374436, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
 --- !u!114 &1974830993066860416
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,5 +155,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac49b2b6d50c7a749bea4d8294713dac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spatialGrid: {fileID: 0}
   velocity: {x: 0, y: 0, z: 0}
   onGrid: 0

@@ -1,11 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Enemy;
-using UnityEditor;
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public class Boids : MonoBehaviour
@@ -28,13 +26,14 @@ public class Boids : MonoBehaviour
     [Range(0f, 2f)] [SerializeField] private float _weightAligment;
     [Range(0f, 2f)] [SerializeField] private float _weightCohesion;
 
-    [Space] [SerializeField] private float _maxCount;
+    [Space] [SerializeField] private float _maxCount = 2f;
     private float _internCount;
 
     [Header("References")] [SerializeField]
     private GridEntity myGridEntity;
 
     [SerializeField] private Hunter hunter;
+    [SerializeField] private GridEntity foodPrefab;
 
     private SpatialGrid _spatialGrid;
 
@@ -58,7 +57,7 @@ public class Boids : MonoBehaviour
         AddForce(Alignment() * _weightAligment);
         AddForce(Cohesion() * _weightCohesion);
         AddForce(Arrive());
-        AddForce(Evade());
+        //AddForce(Evade());
     }
 
     private Vector3 Separation()
@@ -122,30 +121,45 @@ public class Boids : MonoBehaviour
     private Vector3 Arrive()
     {
         Vector3 desired = Vector3.zero;
+        GridEntity foodDestroy = default;
         //IA2-P1
         desired = GetBoids(_radiusFood)
             .Where(x => x != myGridEntity && x.gameObject.layer == 8)
-            .Aggregate(Vector3.zero, (x, y) =>
+            .Aggregate(desired, (x, y) =>
             {
-                Debug.Log("Estoy llegando");
                 Vector3 distance = y.transform.position - transform.position;
+                _internCount += Time.deltaTime;
+                if (_internCount >= _maxCount) foodDestroy = y;
                 return distance / _radiusFood;
             });
+
+        if (foodDestroy != null)
+        {
+            foodDestroy.OnMove -= _spatialGrid.UpdateEntity;
+            StartCoroutine(SpawnFood(foodDestroy.gameObject.transform.position));
+            Destroy(foodDestroy.gameObject);
+        }
+
+        if (_internCount >= _maxCount)
+        {
+            AddForce(RandomDirection());
+            _internCount = 0;
+        }
 
         return desired == Vector3.zero ? desired : Steering(desired);
     }
 
-    public Vector3 Evade()
+    private Vector3 Evade()
     {
         Vector3 desired = Vector3.zero;
-        Vector3 enemyPos = hunter.transform.position - transform.position;
-
-        if (enemyPos.magnitude > _radiusHunter) return desired;
-
         Vector3 futurePos = hunter.transform.position + hunter.velocity * Time.deltaTime;
+        float distanceHunter = Vector3.Distance(transform.position, hunter.transform.position);
 
-        desired = futurePos - transform.position;
-        desired *= -1;
+        if (distanceHunter < _radiusHunter)
+        {
+            desired = futurePos - transform.position;
+            desired *= -1;
+        }
 
         return Steering(desired);
     }
@@ -177,7 +191,13 @@ public class Boids : MonoBehaviour
         return randomDir;
     }
 
-    //private void OnDestroy() => gridEntity.OnMove -= spatialGrid.UpdateEntity;
+    private IEnumerator SpawnFood(Vector3 foodDestroy)
+    {
+        yield return new WaitForSeconds(2f);
+        GridEntity newFoodObject = Instantiate(foodPrefab, foodDestroy, Quaternion.identity, GameObject.FindGameObjectWithTag("Grid").transform);
+        newFoodObject.OnMove += newFoodObject.spatialGrid.UpdateEntity;
+        newFoodObject.spatialGrid.UpdateEntity(newFoodObject);
+    }
 
     #region Gizmos
 
