@@ -29,12 +29,7 @@ public class Boids : MonoBehaviour
 
     public Vector3 velocity { get; private set; }
 
-    // private void Start()
-    // {
-    //     GameManager.instance.AddBoids(this);
-    //
-    //     AddForce(RandomDirection());
-    // }
+    private void Start() => AddForce(RandomDirection());
     //
     // private void Update()
     // {
@@ -174,7 +169,7 @@ public class Boids : MonoBehaviour
 
     private Vector3 RandomDirection()
     {
-        Vector3 randomDir = new Vector3(Random.Range(1f, -1f), 0, Random.Range(1f, -1f));
+        Vector3 randomDir = new(Random.Range(1f, -1f), 0, Random.Range(1f, -1f));
         randomDir.Normalize();
         randomDir *= _maxSpeed;
         return randomDir;
