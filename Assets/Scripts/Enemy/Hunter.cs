@@ -1,10 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEditor;
-using UnityEditor.Hardware;
+using System.Numerics;
 using UnityEngine;
+using UnityEngine.Serialization;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Enemy
 {
@@ -12,7 +12,7 @@ namespace Enemy
     {
         [Header("Fuerzas")] [SerializeField] private float maxSpeed;
         [Range(0, 0.5f)] [SerializeField] private float maxForce;
-        private Vector3 _velocity;
+        public Vector3 velocity;
 
         [Header("Radius")] [Range(0f, 10f)] [SerializeField]
         private float radiusVision;
@@ -24,8 +24,8 @@ namespace Enemy
 
         [SerializeField] private Stamina stamina;
 
-        private SpatialGrid _targetGrid;
         private GridEntity _myGridEntity;
+        private SpatialGrid _spatialGrid;
         private int _currentWaypoint;
 
         private enum StatesHunter
@@ -39,17 +39,17 @@ namespace Enemy
 
         private void Awake()
         {
+            _spatialGrid = GetComponentInParent<SpatialGrid>();
             _myGridEntity = GetComponent<GridEntity>();
-            _targetGrid = GetComponentInParent<SpatialGrid>();
-            
+
             #region CreateStates
 
             var idle = new State<StatesHunter>("Idle");
             var patrol = new State<StatesHunter>("Patrol");
             var attack = new State<StatesHunter>("Attack");
-            
+
             #endregion
-            
+
             #region ConfigStates
 
             StateConfigurer.Create(idle)
@@ -66,9 +66,9 @@ namespace Enemy
                 .SetTransition(StatesHunter.Idle, idle)
                 .SetTransition(StatesHunter.Attack, attack)
                 .Done();
-            
+
             #endregion
-            
+
             #region Events
 
             idle.OnUpdate += () =>
@@ -80,23 +80,28 @@ namespace Enemy
             patrol.OnUpdate += () =>
             {
                 AddForce(Patrol());
-                transform.position += _velocity * Time.deltaTime;
-                transform.forward = _velocity;
+                transform.position += velocity * Time.deltaTime;
+                transform.forward = velocity;
             };
 
             attack.OnUpdate += () =>
             {
                 AddForce(Pursuit());
-                transform.position += _velocity * Time.deltaTime;
-                transform.forward = _velocity;
+                transform.position += velocity * Time.deltaTime;
+                transform.forward = velocity;
             };
-            
+
             #endregion
 
-            _myFsm = new EventFSM<StatesHunter>(idle);
+            _myFsm = new EventFSM<StatesHunter>(patrol);
         }
 
-        private void Update() => _myFsm.Update();
+        private void Update()
+        {
+            _myGridEntity.velocity = velocity;
+
+            _myFsm.Update();
+        }
 
         #region PatrolState
 
@@ -134,43 +139,27 @@ namespace Enemy
         Vector3 Pursuit()
         {
             Vector3 desired = Vector3.zero;
-            GridEntity boidsDestroy = null;
-            GridEntity closerEnemy = GetBoids(radiusVision).OrderBy(x => Vector3.Distance(transform.position, x.transform.position)).FirstOrDefault();
+            //Acá se podría usar Aggregate si no encuentro otro lugar
+            //IA2-P1
+            var closerEnemy = GetBoids(radiusVision)
+                .Where(x => x != _myGridEntity)
+                .Select(x => Tuple.Create(x, Vector3.Distance(transform.position, x.transform.position)))
+                .OrderBy(x => x.Item2)
+                .FirstOrDefault();
 
-            Debug.Log("Ataco 1");
-
-            if (closerEnemy)
+            if (closerEnemy != null)
             {
-                Vector3 futurePos = closerEnemy.transform.position * Time.deltaTime;
-                //+enemyCloser.velocity
+                Vector3 futurePos = closerEnemy.Item1.transform.position + closerEnemy.Item1.velocity * Time.deltaTime;
                 desired = futurePos - transform.position;
-                Debug.Log("Ataco 2");
 
-                if (closerEnemy.transform.position.magnitude <= radiusKill)
+                if (closerEnemy.Item2 <= radiusKill)
                 {
                     Debug.Log("Lo mato");
-                    boidsDestroy = closerEnemy;
+                    GridEntity boidsDestroy = closerEnemy.Item1;
+                    boidsDestroy.OnMove -= _spatialGrid.UpdateEntity;
+                    boidsDestroy.gameObject.SetActive(false);
                 }
             }
-
-            // var enemyCloser = closerEnemy[0];
-            // float distEnemy = Vector3.Distance(transform.position, enemyCloser.transform.position);
-            //
-            // foreach (var item in closerEnemy)
-            // {
-            //     float distEnemy2 = Vector3.Distance(transform.position, item.transform.position);
-            //
-            //     if (distEnemy2 <= distEnemy && distEnemy2 <= radiusVision)
-            //     {
-            //         enemyCloser = item;
-            //         distEnemy = distEnemy2;
-            //         Vector3 futurePos = enemyCloser.transform.position * Time.deltaTime;
-            //         // + enemyCloser.velocity 
-            //         desired = futurePos - transform.position;
-            //     }
-            // }
-
-            if (boidsDestroy != null) Destroy(boidsDestroy.gameObject);
 
             stamina.RestEnergy();
 
@@ -184,7 +173,7 @@ namespace Enemy
 
         private IEnumerable<GridEntity> GetBoids(float radius)
         {
-            return _targetGrid.Query(
+            return _spatialGrid.Query(
                 transform.position + new Vector3(-radius, 0, -radius),
                 transform.position + new Vector3(radius, 0, radius),
                 x =>
@@ -193,11 +182,18 @@ namespace Enemy
                     position2d.y = 0;
                     return position2d.sqrMagnitude < radius * radius;
                 });
-            ;
         }
 
-        private void AddForce(Vector3 force) => _velocity = Vector3.ClampMagnitude(_velocity + force, maxSpeed);
-        private Vector3 Steering(Vector3 desired) => Vector3.ClampMagnitude(desired.normalized * maxSpeed - _velocity, maxForce);
+        private void AddForce(Vector3 force) => velocity = Vector3.ClampMagnitude(velocity + force, maxSpeed);
+        private Vector3 Steering(Vector3 desired) => Vector3.ClampMagnitude(desired.normalized * maxSpeed - velocity, maxForce);
+
+        #region Gizmos
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(transform.position, transform.position + transform.forward);
+        }
 
         private void OnDrawGizmosSelected()
         {
@@ -208,5 +204,7 @@ namespace Enemy
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(position, radiusKill);
         }
+
+        #endregion
     }
 }
