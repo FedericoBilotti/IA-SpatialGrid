@@ -64,14 +64,11 @@ public class Boids : MonoBehaviour
 
     private Vector3 Separation()
     {
-        Vector3 desired = Vector3.zero;
+        Vector3 desired = GetAgents(_radiusSeparation)
         //IA2-P1
-        desired = GetAgents(_radiusSeparation)
             .Where(x => x != myGridEntity && x.gameObject.layer == 6)
             .Select(x => x.transform.position - transform.position)
-            .Aggregate(desired, (x, y) => x + y);
-
-        //foreach (var item in boids) desired += item;
+            .Aggregate(Vector3.zero, (x, y) => x + y);
 
         desired *= -1;
         return desired == Vector3.zero ? desired : Steering(desired);
@@ -79,12 +76,11 @@ public class Boids : MonoBehaviour
 
     private Vector3 Alignment()
     {
-        Vector3 desired = Vector3.zero;
         int countBoids = 0;
         //IA2-P1
-        desired = GetAgents(_radiusAlignment)
+        Vector3 desired = GetAgents(_radiusAlignment)
             .Where(x => x != myGridEntity && x.gameObject.layer == 6)
-            .Aggregate(desired, (x, y) =>
+            .Aggregate(Vector3.zero, (x, y) =>
             {
                 countBoids++;
                 return x + y.velocity;
@@ -93,39 +89,35 @@ public class Boids : MonoBehaviour
         if (countBoids == 0 || desired == Vector3.zero) return desired;
         desired /= countBoids;
 
-        return Steering(desired);
+        return desired == Vector3.zero ? desired : Steering(desired);
     }
 
     private Vector3 Cohesion()
     {
-        Vector3 desired = Vector3.zero;
         int countBoids = 0;
         //IA2-P1
-        Vector3 des = GetAgents(_radiusCohesion)
+        Vector3 desired = GetAgents(_radiusCohesion)
             .Where(x => x != myGridEntity && x.gameObject.layer == 6)
-            .Aggregate(desired, (x, y) =>
+            .Aggregate(Vector3.zero, (x, y) =>
             {
                 countBoids++;
                 return x + transform.position;
-            });
-
-        desired = des;
+            });;
 
         if (countBoids == 0 || desired == Vector3.zero) return desired;
         desired /= countBoids;
         desired -= transform.position;
 
-        return Steering(desired);
+        return desired == Vector3.zero ? desired : Steering(desired);
     }
 
     private Vector3 Arrive()
     {
-        Vector3 desired = Vector3.zero;
         GridEntity foodDestroy = default;
         //IA2-P1
-        desired = GetAgents(_radiusFood)
+        Vector3 desired = GetAgents(_radiusFood)
             .Where(x => x != myGridEntity && x.gameObject.layer == 8)
-            .Aggregate(desired, (x, y) =>
+            .Aggregate(Vector3.zero, (x, y) =>
             {
                 Vector3 distance = y.transform.position - transform.position;
                 _internCount += Time.deltaTime;
@@ -147,6 +139,7 @@ public class Boids : MonoBehaviour
 
     private Vector3 Evade()
     {
+        //IA2-P1
         Vector3 desired = GetAgents(_radiusHunter)
             .Where(x => x != myGridEntity && x.gameObject.layer == 7)
             .Aggregate(Vector3.zero, (x, y) =>
