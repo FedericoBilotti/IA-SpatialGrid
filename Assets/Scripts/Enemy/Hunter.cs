@@ -44,6 +44,7 @@ namespace Enemy
             _myGridEntity = GetComponent<GridEntity>();
 
             //IA2-P3
+
             #region CreateStates
 
             var idle = new State<StatesHunter>("Idle");
@@ -73,11 +74,15 @@ namespace Enemy
 
             #region Events
 
+            idle.OnEnter += x => GetComponentInChildren<Renderer>().material.color = Color.white;
+
             idle.OnUpdate += () =>
             {
                 if (stamina.Energy >= stamina.MaxEnergy) _myFsm.SendInput(StatesHunter.Patrol);
                 else stamina.AddEnergy();
             };
+
+            patrol.OnEnter += x => GetComponentInChildren<Renderer>().material.color = Color.yellow;
 
             patrol.OnUpdate += () =>
             {
@@ -85,6 +90,8 @@ namespace Enemy
                 transform.position += velocity * Time.deltaTime;
                 transform.forward = velocity;
             };
+            
+            attack.OnEnter += x => GetComponentInChildren<Renderer>().material.color = Color.red;
 
             attack.OnUpdate += () =>
             {
@@ -127,7 +134,7 @@ namespace Enemy
 
             if (boids.Any()) _myFsm.SendInput(StatesHunter.Attack);
 
-            return Steering(desired);
+            return desired == Vector3.zero ? desired : Steering(desired);
         }
 
         #endregion
@@ -163,7 +170,7 @@ namespace Enemy
             if (stamina.Energy <= 0) _myFsm.SendInput(StatesHunter.Idle);
             if (desired == Vector3.zero) _myFsm.SendInput(StatesHunter.Patrol);
 
-            return Steering(desired);
+            return desired == Vector3.zero ? desired : Steering(desired);
         }
 
         #endregion

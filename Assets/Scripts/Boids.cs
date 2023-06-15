@@ -188,7 +188,7 @@ public class Boids : MonoBehaviour
 
     private IEnumerator SpawnFood(Vector3 foodDestroy)
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(4f);
         GridEntity newFoodObject = Instantiate(foodPrefab, foodDestroy, Quaternion.identity, GameObject.FindGameObjectWithTag("Grid").transform);
         newFoodObject.OnMove += newFoodObject.spatialGrid.UpdateEntity;
         newFoodObject.spatialGrid.UpdateEntity(newFoodObject);

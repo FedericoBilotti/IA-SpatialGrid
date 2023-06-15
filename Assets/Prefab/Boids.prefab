@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxSpeed: 4
-  _maxForce: 0.2
+  _maxForce: 0.309
   _radiusSeparation: 1.5
   _radiusAlignment: 3
   _radiusCohesion: 4
