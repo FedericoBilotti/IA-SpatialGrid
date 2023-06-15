@@ -71,7 +71,7 @@ public class Boids : MonoBehaviour
             .Aggregate(Vector3.zero, (x, y) => x + y);
 
         desired *= -1;
-        return desired == Vector3.zero ? desired : Steering(desired);
+        return desired == Vector3.zero ? desired : NewSteering(desired.normalized);
     }
 
     private Vector3 Alignment()
@@ -89,7 +89,7 @@ public class Boids : MonoBehaviour
         if (countBoids == 0 || desired == Vector3.zero) return desired;
         desired /= countBoids;
 
-        return desired == Vector3.zero ? desired : Steering(desired);
+        return desired == Vector3.zero ? desired : NewSteering(desired.normalized);
     }
 
     private Vector3 Cohesion()
@@ -108,7 +108,7 @@ public class Boids : MonoBehaviour
         desired /= countBoids;
         desired -= transform.position;
 
-        return desired == Vector3.zero ? desired : Steering(desired);
+        return desired == Vector3.zero ? desired : NewSteering(desired.normalized);
     }
 
     private Vector3 Arrive()
@@ -132,9 +132,10 @@ public class Boids : MonoBehaviour
             StartCoroutine(SpawnFood(foodDestroy.gameObject.transform.position));
             Destroy(foodDestroy.gameObject);
             AddForce(RandomDirection());
-        }
+        }   
 
-        return desired == Vector3.zero ? desired : Steering(desired);
+        return desired == Vector3.zero ? desired : NewSteering(desired);
+
     }
 
     private Vector3 Evade()
@@ -149,12 +150,14 @@ public class Boids : MonoBehaviour
                 return (futuresPos - transform.position) * -1;
             });
 
-        return desired == Vector3.zero ? desired : Steering(desired);
+        return desired == Vector3.zero ? desired : NewSteering(desired.normalized);
     }
 
     private void AddForce(Vector3 force) => _velocity = Vector3.ClampMagnitude(_velocity + force, _maxSpeed);
 
     private Vector3 Steering(Vector3 desired) => Vector3.ClampMagnitude(desired.normalized * _maxSpeed - _velocity, _maxForce);
+
+    private Vector3 NewSteering(Vector3 desired) => Vector3.ClampMagnitude(desired * _maxSpeed - _velocity, _maxForce);
 
     private IEnumerable<GridEntity> GetAgents(float radius)
     {
