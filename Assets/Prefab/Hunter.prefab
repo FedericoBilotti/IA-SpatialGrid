@@ -131,9 +131,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSpeed: 5
-  maxForce: 0.3
+  maxForce: 0.025
   velocity: {x: 0, y: 0, z: 0}
-  radiusVision: 5
+  radiusVision: 6
   radiusKill: 0.5
   waypoints:
   - {fileID: 0}
@@ -154,6 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac49b2b6d50c7a749bea4d8294713dac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spatialGrid: {fileID: 0}
   velocity: {x: 0, y: 0, z: 0}
   onGrid: 0
 --- !u!114 &6029929746053027621
