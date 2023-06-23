@@ -4,7 +4,7 @@ using Random = UnityEngine.Random;
 
 public class Food : MonoBehaviour
 {
-
+    public bool isAvailable;
     public Color myColor;
 
     private void Start()

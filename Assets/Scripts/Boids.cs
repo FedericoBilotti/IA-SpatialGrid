@@ -28,8 +28,8 @@ public class Boids : MonoBehaviour
     [Range(0f, 2f)] [SerializeField] private float _weightAligment;
     [Range(0f, 2f)] [SerializeField] private float _weightCohesion;
 
-    [Space] [SerializeField] private float _maxCount = 2f;
-    private float _internCount;
+    //[Space] [SerializeField] private float _maxCount = 3f;
+    //private float _internCount;
 
     [Header("References")] [SerializeField]
     private GridEntity myGridEntity;
@@ -125,18 +125,22 @@ public class Boids : MonoBehaviour
         //IA2-P1
         Vector3 desired = GetAgents(_radiusFood)
             .Where(x => x != myGridEntity && x.gameObject.layer == 8)
-            .Where(x => x.GetComponent<Food>().myColor.grayscale < _desiredFood.grayscale)
+            .Where(x => x.GetComponent<Food>().myColor.grayscale < _desiredFood.grayscale & x.GetComponent<Food>().isAvailable)            
             .Aggregate(Vector3.zero, (x, y) =>
             {
                 Vector3 distance = y.transform.position - transform.position;
-                _internCount += Time.deltaTime;
-                if (_internCount >= _maxCount) foodDestroy = y;
+                //_internCount += Time.deltaTime;
+                if (Vector3.Distance(y.transform.position, transform.position) < 1) 
+                {
+                    foodDestroy = y;
+                    foodDestroy.GetComponent<Food>().isAvailable = false;
+                } 
                 return distance / _radiusFood;
             });
 
         if (foodDestroy != null)
         {
-            _internCount = 0;
+            //_internCount = 0;
             foodDestroy.OnMove -= _spatialGrid.UpdateEntity;
             StartCoroutine(SpawnFood(foodDestroy.gameObject.transform.position));
             Destroy(foodDestroy.gameObject);

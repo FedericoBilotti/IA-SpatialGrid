@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ac49b2b6d50c7a749bea4d8294713dac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spatialGrid: {fileID: 0}
   velocity: {x: 0, y: 0, z: 0}
   onGrid: 0
 --- !u!114 &2689525685706002728
@@ -60,6 +61,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4acdce1206b6e42438cf05f8807034b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isAvailable: 1
+  myColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!1 &1864016012544171885
 GameObject:
   m_ObjectHideFlags: 0
