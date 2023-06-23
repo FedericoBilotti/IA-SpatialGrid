@@ -2058,6 +2058,14 @@ MonoBehaviour:
   - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
   - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
   - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
+  - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
+  - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
+  - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
+  - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
+  - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
+  - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
+  - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
+  - {fileID: 1864016011343606898, guid: d91e1d5c289638c48a1e7751bb9066b2, type: 3}
   radiusSpawn: 25
 --- !u!4 &660351902
 Transform:
@@ -3287,6 +3295,7 @@ MonoBehaviour:
   height: 50
   width: 50
   spatialGrid: {fileID: 1536142531}
+  _foodColors: []
 --- !u!4 &943689965
 Transform:
   m_ObjectHideFlags: 0

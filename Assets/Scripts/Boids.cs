@@ -39,13 +39,21 @@ public class Boids : MonoBehaviour
 
     private SpatialGrid _spatialGrid;
 
+    private Color _desiredFood;
+
     private void Awake()
     {
         if (_spatialGrid == null) _spatialGrid = GetComponentInParent<SpatialGrid>();
         if (myGridEntity == null) myGridEntity = GetComponent<GridEntity>();
     }
 
-    private void Start() => AddForce(RandomDirection());
+    private void Start()
+    {
+        _desiredFood = new Color(Random.value, Random.value, Random.value);
+
+        AddForce(RandomDirection());
+    }
+    
 
     private void Update()
     {
@@ -117,6 +125,7 @@ public class Boids : MonoBehaviour
         //IA2-P1
         Vector3 desired = GetAgents(_radiusFood)
             .Where(x => x != myGridEntity && x.gameObject.layer == 8)
+            .Where(x => x.GetComponent<Food>().myColor.grayscale < _desiredFood.grayscale)
             .Aggregate(Vector3.zero, (x, y) =>
             {
                 Vector3 distance = y.transform.position - transform.position;
@@ -189,6 +198,8 @@ public class Boids : MonoBehaviour
         newFoodObject.OnMove += newFoodObject.spatialGrid.UpdateEntity;
         newFoodObject.spatialGrid.UpdateEntity(newFoodObject);
     }
+
+
 
     #region Gizmos
 

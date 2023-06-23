@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -9,8 +10,18 @@ public class GameManager : MonoBehaviour
     public float width;
     public static GameManager Instance { get; private set; }
     [SerializeField] private SpatialGrid spatialGrid;
+    public List<Color> _foodColors;
 
-    private void Awake() => Instance = this;
+
+    private void Awake() 
+    { 
+        Instance = this;
+
+        for (int i = 0; i < 20; i++)
+        {
+            _foodColors.Add(new Color (Random.value, Random.value, Random.value));
+        }
+    } 
 
     public Vector3 RespectLimits(Vector3 pos)
     {
@@ -36,4 +47,6 @@ public class GameManager : MonoBehaviour
         Gizmos.DrawLine(position + botRight, position + botLeft);
         Gizmos.DrawLine(position + botLeft, position + topLeft);
     }
+
+    
 }

@@ -134,7 +134,7 @@ MonoBehaviour:
   _radiusSeparation: 1.5
   _radiusAlignment: 3
   _radiusCohesion: 4
-  _radiusFood: 1
+  _radiusFood: 3
   _radiusHunter: 5
   _weightSeparation: 2
   _weightAligment: 0.9
